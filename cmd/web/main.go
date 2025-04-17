@@ -12,15 +12,20 @@ import (
 
 	"myOrder/internal/database"
 	"myOrder/internal/handler"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Try to load .env file, but don't fail if it doesn't exist
+	_ = godotenv.Load()
+
 	// Get database configuration from environment variables
-	dbHost := getEnvOrDefault("DB_HOST", "localhost")
-	dbPort := getEnvOrDefault("DB_PORT", "5432")
-	dbUser := getEnvOrDefault("DB_USER", "postgres")
-	dbPassword := getEnvOrDefault("DB_PASSWORD", "postgres")
-	dbName := getEnvOrDefault("DB_NAME", "myorder")
+	dbHost := getEnv("DB_HOST")
+	dbPort := getEnv("DB_PORT")
+	dbUser := getEnv("DB_USER")
+	dbPassword := getEnv("DB_PASSWORD")
+	dbName := getEnv("DB_NAME")
 
 	// Construct connection string
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
@@ -83,10 +88,10 @@ func main() {
 	log.Println("Server stopped")
 }
 
-func getEnvOrDefault(key, defaultValue string) string {
+func getEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
-		return defaultValue
+		log.Fatalf("Required environment variable %s is not set", key)
 	}
 	return value
 }
